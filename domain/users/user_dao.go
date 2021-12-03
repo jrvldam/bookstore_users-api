@@ -1,11 +1,15 @@
 package users
 
 import (
-	"fmt"
-
 	"github.com/jrvldam/bookstore_users-api/datasources/mysql/users_db"
 	"github.com/jrvldam/bookstore_users-api/utils/date_utils"
 	"github.com/jrvldam/bookstore_users-api/utils/errors"
+	"github.com/jrvldam/bookstore_users-api/utils/mysql_utils"
+)
+
+const (
+	queryInsertUser = "INSERT INTO users(first_name, last_name, email, date_created) VALUES(?, ?, ?, ?);"
+	queryGetUser    = "SELECT id, first_name, last_name, email, date_created FROM users WHERE id=?;"
 )
 
 var (
@@ -13,38 +17,45 @@ var (
 )
 
 func (u *User) Get() *errors.RestErr {
-	if err := users_db.Client.Ping(); err != nil {
-		panic(err)
+	stmt, err := users_db.Client.Prepare(queryGetUser)
+
+	if err != nil {
+		return errors.NewInternalServerError(err.Error())
 	}
+	defer stmt.Close()
 
-	result := usersDB[u.Id]
+	result := stmt.QueryRow(u.Id)
 
-	if result == nil {
-		return errors.NewNotFoundError(fmt.Sprintf("User %d not found", u.Id))
+	if getErr := result.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.DateCreated); getErr != nil {
+		return mysql_utils.ParseError(err)
 	}
-
-	u.Id = result.Id
-	u.FirstName = result.FirstName
-	u.LastName = result.LastName
-	u.Email = result.Email
-	u.DateCreated = result.DateCreated
 
 	return nil
 }
 
 func (u *User) Save() *errors.RestErr {
-	current := usersDB[u.Id]
+	stmt, err := users_db.Client.Prepare(queryInsertUser)
 
-	if current != nil {
-		if current.Email == u.Email {
-			return errors.NewBadRequestError(fmt.Sprintf("User %s already registered", u.Email))
-		}
-		return errors.NewBadRequestError(fmt.Sprintf("User %d already exists", u.Id))
+	if err != nil {
+		return errors.NewInternalServerError(err.Error())
 	}
+	defer stmt.Close()
 
 	u.DateCreated = date_utils.GetNowString()
 
-	usersDB[u.Id] = u
+	insertResult, saveErr := stmt.Exec(u.FirstName, u.LastName, u.Email, u.DateCreated)
+
+	if saveErr != nil {
+		return mysql_utils.ParseError(saveErr)
+	}
+
+	userId, err := insertResult.LastInsertId()
+
+	if err != nil {
+		return mysql_utils.ParseError(err)
+	}
+
+	u.Id = userId
 
 	return nil
 }
