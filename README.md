@@ -55,7 +55,7 @@ CREATE TABLE `users_db`.`users` (
 
 ```
 
-Set the environment variables:
+Set the environment variables, if not using env file:
 ```shell
 export mysql_users_username=root
 export mysql_users_password=BATMAN

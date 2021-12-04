@@ -1,7 +1,6 @@
 package users
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -42,8 +41,7 @@ func GetUser(c *gin.Context) {
 	result, getErr := services.GetUser(id)
 
 	if getErr != nil {
-		restErr := errors.NewNotFoundError(fmt.Sprintf("User id %d, not found", id))
-		c.JSON(restErr.Status, restErr)
+		c.JSON(getErr.Status, getErr)
 		return
 	}
 
