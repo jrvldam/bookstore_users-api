@@ -10,7 +10,17 @@ import (
 	"github.com/jrvldam/bookstore_users-api/utils/errors"
 )
 
-func CreateUser(c *gin.Context) {
+func getUserId(userIdParam string) (int64, *errors.RestErr) {
+	id, err := strconv.ParseInt(userIdParam, 10, 64)
+
+	if err != nil {
+		return 0, errors.NewBadRequestError("User id should be a number")
+	}
+
+	return id, nil
+}
+
+func Create(c *gin.Context) {
 	var user users.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -29,12 +39,11 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-func GetUser(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("user_id"), 10, 64)
+func Get(c *gin.Context) {
+	id, idErr := getUserId(c.Param("user_id"))
 
-	if err != nil {
-		restErr := errors.NewBadRequestError("User id should be a number")
-		c.JSON(restErr.Status, restErr)
+	if idErr != nil {
+		c.JSON(idErr.Status, idErr)
 		return
 	}
 
@@ -48,12 +57,11 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func UpdateUser(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("user_id"), 10, 64)
+func Update(c *gin.Context) {
+	id, idErr := getUserId(c.Param("user_id"))
 
-	if err != nil {
-		restErr := errors.NewBadRequestError("User id should be a number")
-		c.JSON(restErr.Status, restErr)
+	if idErr != nil {
+		c.JSON(idErr.Status, idErr)
 		return
 	}
 
@@ -77,4 +85,20 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+func Delete(c *gin.Context) {
+	id, idErr := getUserId(c.Param("user_id"))
+
+	if idErr != nil {
+		c.JSON(idErr.Status, idErr)
+		return
+	}
+
+	if err := services.DeleteUser(id); err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]string{"status": "deleted"})
 }
