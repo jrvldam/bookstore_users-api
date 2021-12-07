@@ -1,5 +1,6 @@
 # bookstore_users-api
 Users API
+MVC pattern
 
 ### Set database for the project
 Install mysql client:
@@ -49,7 +50,9 @@ CREATE TABLE `users_db`.`users` (
   `first_name` VARCHAR(45) NULL,
   `last_name` VARCHAR(45) NULL,
   `email` VARCHAR(45) NULL,
-  `date_created` VARCHAR(45) NULL,
+  `status` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(32) NOT NULL,
+  `date_created` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC));
 
