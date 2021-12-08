@@ -10,7 +10,6 @@ const (
 	StatusActive = "active"
 )
 
-// Domain User
 type User struct {
 	Id          int64  `json:"id"`
 	FirstName   string `json:"first_name"`
@@ -21,7 +20,8 @@ type User struct {
 	DateCreated string `json:"date_created"`
 }
 
-// Validate given user
+type Users []User
+
 func (u *User) Validate() *errors.RestErr {
 	u.FirstName = strings.TrimSpace(strings.ToLower(u.FirstName))
 	u.LastName = strings.TrimSpace(strings.ToLower(u.LastName))
