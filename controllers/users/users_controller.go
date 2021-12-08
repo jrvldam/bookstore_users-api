@@ -29,7 +29,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	result, err := services.CreateUser(user)
+	result, err := services.UsersService.CreateUser(user)
 
 	if err != nil {
 		c.JSON(err.Status, err)
@@ -47,7 +47,7 @@ func Get(c *gin.Context) {
 		return
 	}
 
-	user, getErr := services.GetUser(id)
+	user, getErr := services.UsersService.GetUser(id)
 
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
@@ -77,7 +77,7 @@ func Update(c *gin.Context) {
 
 	isPartial := c.Request.Method == http.MethodPatch
 
-	result, updateErr := services.UpdateUser(isPartial, user)
+	result, updateErr := services.UsersService.UpdateUser(isPartial, user)
 
 	if updateErr != nil {
 		c.JSON(updateErr.Status, updateErr)
@@ -95,7 +95,7 @@ func Delete(c *gin.Context) {
 		return
 	}
 
-	if err := services.DeleteUser(id); err != nil {
+	if err := services.UsersService.DeleteUser(id); err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
@@ -106,7 +106,7 @@ func Delete(c *gin.Context) {
 func Search(c *gin.Context) {
 	status := c.Query("status")
 
-	users, err := services.Search(status)
+	users, err := services.UsersService.SearchUser(status)
 
 	if err != nil {
 		c.JSON(err.Status, err)
