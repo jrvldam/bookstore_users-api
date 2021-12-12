@@ -11,7 +11,9 @@ brew install mysql-client
 Create a file `docker-compose.yml` with the content:
 ```yaml
 version: '3'
+
 services:
+
   mysql:
     image: mysql:latest
     ports:
@@ -25,17 +27,12 @@ services:
 
 In the same directory where docker-compose.yml file:
 ```shell
-docker-compose up
-```
-
-Check the expossed port by running:
-```shell
-docker ps
+docker-compose up -d
 ```
 
 Open a mysql session:
 ```shell
-mysql -P 49384 --protocol=tcp -u root -p
+mysql -P 8083 --protocol=tcp -u root -p
 ```
 
 Create the schema
@@ -62,6 +59,6 @@ Set the environment variables, if not using env file:
 ```shell
 export mysql_users_username=root
 export mysql_users_password=BATMAN
-export mysql_users_host="127.0.0.1:49384"
+export mysql_users_host="127.0.0.1:8083"
 export mysql_users_schema=users_db
 ```
